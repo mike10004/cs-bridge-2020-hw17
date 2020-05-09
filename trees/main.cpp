@@ -2,10 +2,18 @@
 // hw question 1
 
 #include <iostream>
+#include <ctime>
+#include "avl.h"
 
 using namespace std;
 
-int main() {
-    cout << "q1 executed" << endl;
-    return 0;
+int main(){
+
+    AVL<int> b;
+    srand(time(NULL));
+    for (int i = 0; i < 25; i++){
+        int val = rand() % 1000;
+        b.insert(val);
+    }
+    b.printLevelOrder();
 }
