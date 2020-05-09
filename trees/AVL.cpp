@@ -31,8 +31,8 @@ class AVLNode{
 	T data;
 public:
 	friend class AVL < T > ;
-	AVLNode(const T& newdata = T(), AVLNode<T>* newparent = nullptr, AVLNode<T>* newleft = nullptr, AVLNode<T>* newright = nullptr) :
-		data(newdata), parent(newparent), left(newleft), right(newright) {
+	explicit AVLNode(const T& newdata = T(), AVLNode<T>* newparent = nullptr, AVLNode<T>* newleft = nullptr, AVLNode<T>* newright = nullptr) :
+            parent(newparent), left(newleft), right(newright), height(-2), data(newdata) {
 		calcHeight();
 	}
 	void calcHeight(){
@@ -105,7 +105,7 @@ public:
 	AVL() :size(0){ root = nullptr; }
 
 	//memory on the heap so.... here comes the big 3!
-	AVL(const AVL<T>& rhs) :root(nullptr){ *this = rhs; }
+	AVL(const AVL<T>& rhs) :size(0), root(nullptr){ *this = rhs; }
 	virtual ~AVL(){ clear(); }
 	AVL& operator=(const AVL<T>& rhs);
 
