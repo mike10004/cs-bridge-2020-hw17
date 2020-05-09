@@ -2,15 +2,16 @@
 #include <queue>
 #include "avl.h"
 
-using namespace std;
+template <class T>
+using queue = std::queue<T>;
 
 template <class T>
-void AVL<T>::printLevelOrder() const{
+void AVL<T>::printLevelOrder(ostream& out) const{
 	queue<AVLNode<T>*> q;
 	q.push(root);
 	while (!q.empty()){
 		AVLNode<T>* front = q.front();
-		cout << front->data << "\t" << front->height << endl;
+		out << front->data << "\t" << front->height << std::endl;
 		if (front->left!=nullptr)
 			q.push(front->left);
 		if (front->right)
@@ -89,7 +90,6 @@ AVL<T>& AVL<T>::operator=(const AVL<T>& rhs){
 		return *this;
 	clear();
 	root = recursiveCopy(rhs.root);
-	size = rhs.size;
 	return *this;
 }
 
@@ -106,7 +106,6 @@ void AVL<T>::remove(AVLNode<T>* toRemove){
 		else
 			toRemove->parent->right = nullptr;
 		delete toRemove;
-		size--;
 	}
 	else if (toRemove->right == nullptr){ //has one (left) child
 		if (toRemove->parent == nullptr){
@@ -122,7 +121,6 @@ void AVL<T>::remove(AVLNode<T>* toRemove){
 			toRemove->left->parent = toRemove->parent;
 		}
 		delete toRemove;
-		size--;
 	}
 	else if (toRemove->left == nullptr){ //has one right child, almost same solution as left child only
 		if (toRemove->parent == nullptr){
@@ -138,7 +136,6 @@ void AVL<T>::remove(AVLNode<T>* toRemove){
 			toRemove->right->parent = toRemove->parent;
 		}
 		delete toRemove;
-		size--;
 	}
 	else{ //sigh... two children!
 		AVLNode<T>* temp = toRemove->right;
@@ -235,3 +232,10 @@ int AVL<T>::heightDiff(AVLNode<T>* point){
 	return (abs(leftHeight - rightHeight));
 }
 
+template <class T>
+int AVL<T>::getSize() const {
+    if (root == nullptr) {
+        return 0;
+    }
+    return root->size();
+}

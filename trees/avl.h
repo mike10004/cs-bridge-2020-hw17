@@ -6,7 +6,7 @@
 #include <ctime>
 #include <queue>
 
-using namespace std;
+using ostream = std::ostream;
 
 template <class T>
 class AVL;
@@ -50,14 +50,14 @@ public:
         if (parent) //Update all parent heights also
             parent->calcHeight();
     }
-    void printInOrder()const{
+    void printInOrder(ostream& out)const{
         if (left != nullptr)
-            left->printInOrder();
-        cout << data <<"\t"<<height<< endl;
+            left->printInOrder(out);
+        out << data <<"\t"<<height<< std::endl;
         if (right != nullptr)
-            right->printInOrder();
+            right->printInOrder(out);
     }
-    void printPostOrder()const;
+    void printPostOrder(ostream& out)const;
     int size()const{
         int leftSize = 0;
         int rightSize = 0;
@@ -85,19 +85,18 @@ public:
 };
 
 template <class T>
-void AVLNode<T>::printPostOrder()const{
+void AVLNode<T>::printPostOrder(ostream& out)const{
     if (left != nullptr)
-        left->printInOrder();
+        left->printInOrder(out);
     if (right != nullptr)
-        right->printInOrder();
-    cout << data << endl;
+        right->printInOrder(out);
+    out << data << std::endl;
 }
 
 
 template <class T>
 class AVL{
     AVLNode<T>* root;
-    int size;
     AVLNode<T>* recursiveCopy(AVLNode<T>* toCopy);
     void singleCCR(AVLNode<T>*& point);
     void doubleCR(AVLNode<T>*& point);
@@ -106,16 +105,16 @@ class AVL{
     int heightDiff(AVLNode<T>* point);
     void doRotation(AVLNode<T>* point);
 public:
-    AVL() :size(0){ root = nullptr; }
+    AVL() { root = nullptr; }
 
     //memory on the heap so.... here comes the big 3!
-    AVL(const AVL<T>& rhs) : root(nullptr), size(0){ *this = rhs; }
+    AVL(const AVL<T>& rhs) : root(nullptr) { *this = rhs; }
     virtual ~AVL(){ clear(); }
     AVL& operator=(const AVL<T>& rhs);
 
     bool isInTree(const T& toFind) const{ return find(toFind) != nullptr; }
     bool isEmpty()const{ return root == nullptr; }
-    int getSize()const { return size; }
+    int getSize()const;
     void remove(const T& toRemove){
         AVLNode<T>* item = find(toRemove);
         if (item != nullptr)
@@ -126,9 +125,9 @@ public:
     void remove(AVLNode<T>*);
     AVLNode<T>* find(const T& toFind) const;
     void clear(){ while (!isEmpty()) remove(root); }
-    void printInOrder()const{ root->printInOrder(); }
-    void printPostOrder()const{ root->printPostOrder(); }
-    void printLevelOrder()const;
+    void printInOrder(ostream& out)const{ root->printInOrder(out); }
+    void printPostOrder(ostream& out)const{ root->printPostOrder(out); }
+    void printLevelOrder(ostream& out)const;
 };
 
 template class AVL<int>;

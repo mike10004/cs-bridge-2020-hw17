@@ -15,5 +15,5 @@ int main(){
         int val = rand() % 1000;
         b.insert(val);
     }
-    b.printLevelOrder();
+    b.printLevelOrder(cout);
 }
