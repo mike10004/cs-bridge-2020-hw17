@@ -5,6 +5,7 @@
 #include <iostream>
 #include <ctime>
 #include <queue>
+#include "tree.h"
 
 using ostream = std::ostream;
 
@@ -67,15 +68,15 @@ public:
             rightSize = right->size();
         return 1 + leftSize + rightSize;
     }
-    /*	int height()const{
+    	int recalcHeight()const{
             int leftSize = -1;
             int rightSize = -1;
             if (left != nullptr)
-            leftSize = left->height();
+            leftSize = left->recalcHeight();
             if (right != nullptr)
-            rightSize = right->height();
+            rightSize = right->recalcHeight();
             return 1 + max(leftSize, rightSize);
-            }*/
+            }
     int depth() const{
         int parentDepth = -1;
         if (parent != nullptr)
@@ -93,34 +94,34 @@ void AVLNode<T>::printPostOrder(ostream& out)const{
     out << data << std::endl;
 }
 
-
 template <class T>
-class AVL{
+class AVL : public Tree<T> {
     AVLNode<T>* root;
-    AVLNode<T>* recursiveCopy(AVLNode<T>* toCopy);
     void singleCCR(AVLNode<T>*& point);
     void doubleCR(AVLNode<T>*& point);
     void singleCR(AVLNode<T>*& point);
     void doubleCCR(AVLNode<T>*& point);
     int heightDiff(AVLNode<T>* point);
     void doRotation(AVLNode<T>* point);
+    bool check(AVLNode<T>* point) const;
 public:
     AVL() { root = nullptr; }
 
     //memory on the heap so.... here comes the big 3!
     AVL(const AVL<T>& rhs) : root(nullptr) { *this = rhs; }
-    virtual ~AVL(){ clear(); }
+    virtual ~AVL() override { clear(); }
     AVL& operator=(const AVL<T>& rhs);
 
-    bool isInTree(const T& toFind) const{ return find(toFind) != nullptr; }
-    bool isEmpty()const{ return root == nullptr; }
-    int getSize()const;
+    AVLNode<T>* recursiveCopy(AVLNode<T>* toCopy);
+    bool isInTree(const T& toFind) const override { return find(toFind) != nullptr; }
+    bool isEmpty() const override { return root == nullptr; }
+    int getSize() const override;
     void remove(const T& toRemove){
         AVLNode<T>* item = find(toRemove);
         if (item != nullptr)
             remove(item);
     }
-    void insert(const T&);
+    void insert(const T&) override;
     void insert(const T&, AVLNode<T>*& point);
     void remove(AVLNode<T>*);
     AVLNode<T>* find(const T& toFind) const;
@@ -128,6 +129,7 @@ public:
     void printInOrder(ostream& out)const{ root->printInOrder(out); }
     void printPostOrder(ostream& out)const{ root->printPostOrder(out); }
     void printLevelOrder(ostream& out)const;
+    bool check() const override;
 };
 
 template class AVL<int>;

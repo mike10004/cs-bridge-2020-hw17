@@ -239,3 +239,43 @@ int AVL<T>::getSize() const {
     }
     return root->size();
 }
+
+template <class T>
+bool AVL<T>::check() const {
+    if (!check(root)) {
+        return false;
+    }
+    if (root != nullptr) {
+        if (!check(root->left)) {
+            return false;
+        }
+        if (!check(root->right)) {
+            return false;
+        }
+    }
+    return true;
+}
+
+template<class T>
+bool AVL<T>::check(AVLNode<T>* node) const {
+    if (node == nullptr) {
+        return true;
+    }
+    int leftHeight = -1, rightHeight = -1;
+    if (node->left != nullptr) {
+        if (node->data < node->left->data) {
+            return false;
+        }
+        leftHeight = node->left->recalcHeight();
+    }
+    if (node->right != nullptr) {
+        if (node->right->data < node->data) {
+            return false;
+        }
+        rightHeight = node->right->recalcHeight();
+    }
+    if (std::abs(leftHeight - rightHeight) > 1) {
+        return false;
+    }
+    return true;
+}

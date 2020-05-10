@@ -1,6 +1,9 @@
 #include <sstream>
+#include <cstdlib>
 #include <catch.hpp>
+#include "../trees/tree.h"
 #include "../trees/avl.h"
+#include "trees_testing.h"
 
 TEST_CASE("AVL basics") {
 
@@ -23,4 +26,10 @@ TEST_CASE("AVL basics") {
     REQUIRE_FALSE(buffer2.str().empty());
     tree.printPostOrder(buffer3);
     REQUIRE_FALSE(buffer3.str().empty());
+}
+
+TEST_CASE("AVL Standard Tree Test") {
+    AVL<int> tree;
+    srand(0x12345);
+    TestTree(tree);
 }
