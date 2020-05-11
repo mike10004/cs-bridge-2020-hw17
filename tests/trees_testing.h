@@ -6,9 +6,11 @@
 #include "../trees/tree.h"
 
 void TestTree(Tree<int>& tree) {
-    for (int i = 0; i < 25; i++){
-        int val = rand() % 1000;
+    int n = 1000;
+    for (int i = 0; i < n; i++){
+        int val = rand() % 10000;
         tree.insert(val);
+        REQUIRE(!tree.isEmpty());
         REQUIRE(tree.check());
     }
 }
