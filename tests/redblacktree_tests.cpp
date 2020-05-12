@@ -2,12 +2,12 @@
 #include <cstdlib>
 #include <catch.hpp>
 #include "../trees/tree.h"
-#include "../trees/avl.h"
+#include "../trees/redblack.h"
 #include "trees_testing.h"
 
-TEST_CASE("AVL basics") {
+TEST_CASE("RedBlackTree basics") {
 
-    AVL<char> tree;
+    RedBlackTree<char> tree;
     REQUIRE(0 == tree.getSize());
     tree.insert('a');
     REQUIRE(1 == tree.getSize());
@@ -28,8 +28,25 @@ TEST_CASE("AVL basics") {
     REQUIRE_FALSE(buffer3.str().empty());
 }
 
-TEST_CASE("AVL Standard Tree Test") {
-    AVL<int> tree;
+TEST_CASE("RedBlackTree Standard Test") {
+    RedBlackTree<int> tree;
     srand(0x12345);
     TestTree(tree);
 }
+
+TEST_CASE("RedBlackTree contains") {
+    srand(0x98765);
+    RedBlackTree<int> tree;
+    int n = 1000, k = 10000;
+    std::set<int> values;
+    for (int i = 0; i < n; i++){
+        int val = rand() % k;
+        tree.insert(val);
+        values.insert(val);
+    }
+    for (int value = 0; value < k; value++) {
+        bool present = values.find(value) != values.end();
+        REQUIRE(present == tree.isInTree(value));
+    }
+}
+

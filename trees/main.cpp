@@ -3,13 +3,13 @@
 
 #include <iostream>
 #include <ctime>
-#include "avl.h"
+#include "redblack.h"
 
 using namespace std;
 
 int main(){
 
-    AVL<int> b;
+    RedBlackTree<int> b;
     srand(time(NULL));
     for (int i = 0; i < 25; i++){
         int val = rand() % 1000;

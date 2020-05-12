@@ -1,4 +1,9 @@
 
 project(trees)
 
-add_executable(maintree AVL.cpp avl.h main.cpp tree.h)
+add_executable(maintree
+        tree.h
+        redblack.cpp
+        redblack.h
+        main.cpp
+        redblack.cpp)

@@ -61,35 +61,32 @@ public:
 };
 
 template <class T>
-void TreeNode<T>::printPostOrder(ostream& out)const{
-    if (left != nullptr)
-        left->printInOrder(out);
-    if (right != nullptr)
-        right->printInOrder(out);
-    out << data << std::endl;
-}
-
-template <class T>
 class Tree {
 public:
     Tree() : root(nullptr) {};
     virtual ~Tree() = default;
-    virtual bool isEmpty() const = 0;
+    virtual bool isEmpty() const;
     virtual int getSize() const = 0;
     virtual void insert(const T&) = 0;
     virtual bool isInTree(const T& toFind) const = 0;
-    virtual bool check() const = 0;
+    virtual bool check() const;
     virtual void clear() = 0;
     virtual void singleCCR(TreeNode<T>*& point);
     virtual void doubleCR(TreeNode<T>*& point);
     virtual void singleCR(TreeNode<T>*& point);
     virtual void doubleCCR(TreeNode<T>*& point);
-    void printInOrder(ostream& out)const{ root->printInOrder(out); }
-    void printPostOrder(ostream& out)const{ root->printPostOrder(out); }
-    void printLevelOrder(ostream& out)const;
+    virtual void printInOrder(ostream& out)const{ root->printInOrder(out); }
+    virtual void printPostOrder(ostream& out)const{ root->printPostOrder(out); }
+    virtual void printLevelOrder(ostream& out)const;
 protected:
     TreeNode<T>* root;
+    virtual bool checkOrder(TreeNode<T>* node) const;
 };
+
+template <class T>
+bool Tree<T>::isEmpty() const {
+    return root == nullptr;
+}
 
 template <class T>
 void Tree<T>::printLevelOrder(ostream& out) const{
@@ -133,8 +130,6 @@ void Tree<T>::singleCR(TreeNode<T>*& point){
         parent->parent->left = parent;
     else
         parent->parent->right = parent;
-    grandparent->calcHeight();
-    parent->calcHeight();
 }
 
 template <class T>
@@ -153,9 +148,47 @@ void Tree<T>::singleCCR(TreeNode<T>*& point){
         parent->parent->right = parent;
     else
         parent->parent->left = parent;
-    grandparent->calcHeight();
-    parent->calcHeight();
 }
+
+template<class T>
+bool Tree<T>::checkOrder(TreeNode<T> *node) const {
+    if (node == nullptr) {
+        return true;
+    }
+    if (node->left != nullptr) {
+        if (node->data < node->left->data) {
+            return false;
+        }
+        if (!checkOrder(node->left)) {
+            return false;
+        }
+    }
+    if (node->right != nullptr) {
+        if (node->right->data < node->data) {
+            return false;
+        }
+        if (!checkOrder(node->right)) {
+            return false;
+        }
+    }
+    return true;
+}
+
+template<class T>
+bool Tree<T>::check() const {
+    return checkOrder(root);
+}
+
+template <class T>
+void TreeNode<T>::printPostOrder(ostream& out)const{
+    if (left != nullptr)
+        left->printInOrder(out);
+    if (right != nullptr)
+        right->printInOrder(out);
+    out << data << std::endl;
+}
+
+
 
 template class Tree<int>;
 template class Tree<char>;
