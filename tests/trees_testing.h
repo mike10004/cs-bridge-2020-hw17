@@ -5,23 +5,26 @@
 #include <catch.hpp>
 #include "../trees/tree.h"
 
-const int k = 10000;
+const int VALUE_MAX = 10000;
 
 void TestTree(Tree<int>& tree) {
     int n = 1000;
-    bool present[k] = {false};
-    for (int i = 0; i < n; i++){
-        int val = rand() % k;
-        tree.insert(val);
-        present[val] = true;
-        REQUIRE(!tree.isEmpty());
-        REQUIRE(tree.check());
+    int t = 100;
+    for (int j = 0; j < t; j++) {
+        tree.clear();
+        REQUIRE(tree.isEmpty());
+        bool present[VALUE_MAX] = {false};
+        for (int i = 0; i < n; i++) {
+            int val = rand() % VALUE_MAX;
+            tree.insert(val);
+            present[val] = true;
+            REQUIRE(!tree.isEmpty());
+            // REQUIRE(tree.check());
+        }
+        for (int value = 0; value < VALUE_MAX; value++) {
+            REQUIRE(present[value] == tree.isInTree(value));
+        }
     }
-    for (int value = 0; value < k; value++) {
-        REQUIRE(present[value] == tree.isInTree(value));
-    }
-    tree.clear();
-    REQUIRE(tree.isEmpty());
 }
 
 

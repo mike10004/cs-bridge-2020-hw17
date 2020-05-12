@@ -11,15 +11,22 @@ const bool BLACK = true;
 
 template <class T>
 class RBNode : public TreeNode<T> {
+private:
+    Color color;
 public:
     RBNode(const T& data, RBNode<T>* parent, RBNode<T>* left, RBNode<T>* right)
-    : TreeNode<T>(data, parent, left, right), color(RED) {}
+        : RBNode(data, parent, left, right, RED) {}
+    RBNode(const T& data)
+        : RBNode(data, nullptr, nullptr, nullptr, RED) {}
+    RBNode(const T& data, RBNode<T>* parent)
+        : RBNode(data, parent, nullptr, nullptr, RED) {}
     bool isRed() const;
     bool isBlack() const;
-    RBNode<T>* GetParent();
-    RBNode<T>* GetLeft();
-    RBNode<T>* GetRight();
-
+    RBNode<T>* GetParent() const;
+    RBNode<T>* GetLeft() const;
+    RBNode<T>* GetRight() const;
+    RBNode<T>* GetSibling();
+    void SetColor(Color color);
     /**
      * Gets the path from the given node to this node.
      * The result is empty if the given node is not an ancestor of this node.
@@ -31,54 +38,10 @@ public:
      */
     std::vector<RBNode<T>*> GetPathFrom(RBNode<T>* node) const;
 private:
-    Color color;
+    RBNode(const T& data, RBNode<T>* parent, RBNode<T>* left, RBNode<T>* right, Color color)
+            : TreeNode<T>(data, parent, left, right), color(color) {}
 
 };
-
-template<class T>
-std::vector<RBNode<T> *> RBNode<T>::GetPathFrom(RBNode<T>* node) const {
-    std::stack<RBNode<T>*> path;
-    RBNode<T>* current = this;
-    bool found = false;
-    while (current != nullptr) {
-        path.push(current);
-        if (current == node) {
-            found = true;
-            break;
-        }
-        current = current->GetParent();
-    }
-    if (found || node == nullptr) {
-        return std::vector<RBNode<T>*>(path.begin(), path.end());
-    } else {
-        return std::vector<RBNode<T>*>();
-    }
-}
-
-template<class T>
-bool RBNode<T>::isRed() const {
-    return color == RED;
-}
-
-template<class T>
-bool RBNode<T>::isBlack() const {
-    return color == BLACK;
-}
-
-template<class T>
-RBNode<T> *RBNode<T>::GetParent() {
-    return (RBNode<T>*) (this->parent);
-}
-
-template<class T>
-RBNode<T> *RBNode<T>::GetLeft() {
-    return (RBNode<T>*) (this->left);
-}
-
-template<class T>
-RBNode<T> *RBNode<T>::GetRight() {
-    return (RBNode<T>*) (this->right);
-}
 
 template <class T>
 class RedBlackTree : public Tree<T> {
@@ -92,11 +55,23 @@ public:
     bool isInTree(const T& element) const override;
     void insert(const T& value) override;
 private:
-    void clear(TreeNode<T>* node);
+    void clear(TreeNode<T>*& node);
     bool check(RBNode<T>* node) const;
     void GetDescendants(RBNode<T>* node, std::vector<RBNode<T>*>& nodes) const;
+    /**
+     * Inserts a value into the tree. Returns the new or existing node containing the given value.
+     * @param value
+     * @param parent
+     * @return
+     */
+    RBNode<T>* insert(const T& value, RBNode<T>* parent);
+    void repair(RBNode<T>* node);
 };
 
+
+template class RBNode<int>;
+template class RBNode<char>;
+template class RBNode<std::string>;
 template class RedBlackTree<int>;
 template class RedBlackTree<char>;
 template class RedBlackTree<std::string>;

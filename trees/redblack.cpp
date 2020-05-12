@@ -1,5 +1,72 @@
 #include "redblack.h"
 #include <set>
+#include <cassert>
+
+template<class T>
+std::vector<RBNode<T> *> RBNode<T>::GetPathFrom(RBNode<T>* node) const {
+    std::stack<RBNode<T>*> path_from_here;
+    RBNode<T>* current = GetParent();
+    bool found = false;
+    while (current != nullptr) {
+        path_from_here.push(current);
+        if (current == node) {
+            found = true;
+            break;
+        }
+        current = current->GetParent();
+    }
+    if (found || node == nullptr) {
+        std::vector<RBNode<T>*> path_from_node;
+        while (!path_from_here.empty()) {
+            path_from_node.push_back(path_from_here.top());
+            path_from_here.pop();
+        }
+        return path_from_node;
+    } else {
+        return std::vector<RBNode<T>*>();
+    }
+}
+
+template<class T>
+bool RBNode<T>::isRed() const {
+    return color == RED;
+}
+
+template<class T>
+bool RBNode<T>::isBlack() const {
+    return color == BLACK;
+}
+
+template<class T>
+RBNode<T> *RBNode<T>::GetParent() const {
+    return (RBNode<T>*) (this->parent);
+}
+
+template<class T>
+RBNode<T> *RBNode<T>::GetLeft() const {
+    return (RBNode<T>*) (this->left);
+}
+
+template<class T>
+RBNode<T> *RBNode<T>::GetRight() const {
+    return (RBNode<T>*) (this->right);
+}
+
+template<class T>
+void RBNode<T>::SetColor(Color color_) {
+    color = color_;
+}
+
+template<class T>
+RBNode<T>* RBNode<T>::GetSibling() {
+    RBNode<T>* parent = GetParent();
+    if (parent == nullptr) {
+        return nullptr;
+    }
+    RBNode<T>* parent_left = parent->GetLeft();
+    RBNode<T>* parent_right = parent->GetRight();
+    return parent_left == this ? parent_right : parent_left;
+}
 
 template<class T>
 RedBlackTree<T>::~RedBlackTree() {
@@ -12,11 +79,12 @@ bool RedBlackTree<T>::isEmpty() const {
 }
 
 template<class T>
-void RedBlackTree<T>::clear(TreeNode<T>* node) {
+void RedBlackTree<T>::clear(TreeNode<T>*& node) {
     if (node != nullptr) {
         clear(node->left);
         clear(node->right);
         delete node;
+        node = nullptr;
     }
 }
 
@@ -72,6 +140,7 @@ bool RedBlackTree<T>::check(RBNode<T>* node) const {
     for (RBNode<T>* d : descendants) {
         if (d->left == nullptr || d->right == nullptr) {
             vector<RBNode<T>*> path_from_root = d->GetPathFrom(node);
+            path_from_root.push_back(node);
             paths_with_nulls.push_back(path_from_root);
         }
     }
@@ -111,6 +180,68 @@ void RedBlackTree<T>::GetDescendants(RBNode<T>* node, std::vector<RBNode<T>*> &n
         GetDescendants(node->GetLeft(), nodes);
         GetDescendants(node->GetRight(), nodes);
     }
+}
+
+template<class T>
+void RedBlackTree<T>::insert(const T &value) {
+    // case 1: insert root
+    if (this->root == nullptr) {
+        RBNode<T>* node = new RBNode<T>(value);
+        node->SetColor(BLACK);
+        this->root = node;
+    } else {
+        RBNode<T>* inserted_node = insert(value, (RBNode<T>*) this->root);
+        repair(inserted_node);
+    }
+}
+
+template <class T>
+RBNode<T>* RedBlackTree<T>::insert(const T& value, RBNode<T>* point) {
+    assert(point != nullptr);
+    if (value < point->data) {
+        if (point->left == nullptr) {
+            RBNode<T>* node = new RBNode<T>(value, point);
+            point->left = node;
+            return node;
+        } else {
+            return insert(value, (RBNode<T>*) point->left);
+        }
+    } else if (value > point->data) {
+        if (point->right == nullptr) {
+            RBNode<T>* node = new RBNode<T>(value, point);
+            point->right = node;
+            return node;
+        } else {
+            return insert(value, (RBNode<T>*) point->right);
+        }
+    } else { // value equals point->data
+        return point;
+    }
+}
+
+template<class T>
+void RedBlackTree<T>::repair(RBNode<T> *node) {
+    RBNode<T>* parent = node->GetParent();
+    if (parent == nullptr) {
+        // case 1: inserted root
+        node->SetColor(BLACK);
+    } else {
+        // case 2: if parent of inserted node is black, then do nothing; otherwise...
+        if (parent->isRed()) {
+            RBNode<T>* parent_sibling = parent->GetSibling();
+            if (parent_sibling != nullptr && parent_sibling->isRed()) {
+                // case 3
+                parent->SetColor(BLACK);
+                parent_sibling->SetColor(BLACK);
+                repair(parent->GetParent()); // we know it's non-null because parent_sibling is non-null
+            } else {
+                // case 4
+
+            }
+        }
+    }
+
+
 }
 
 

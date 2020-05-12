@@ -34,19 +34,3 @@ TEST_CASE("RedBlackTree Standard Test") {
     TestTree(tree);
 }
 
-TEST_CASE("RedBlackTree contains") {
-    srand(0x98765);
-    RedBlackTree<int> tree;
-    int n = 1000, k = 10000;
-    std::set<int> values;
-    for (int i = 0; i < n; i++){
-        int val = rand() % k;
-        tree.insert(val);
-        values.insert(val);
-    }
-    for (int value = 0; value < k; value++) {
-        bool present = values.find(value) != values.end();
-        REQUIRE(present == tree.isInTree(value));
-    }
-}
-
