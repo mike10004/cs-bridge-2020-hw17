@@ -65,7 +65,16 @@ private:
      * @return
      */
     RBNode<T>* insert(const T& value, RBNode<T>* parent);
-    void repair(RBNode<T>* node);
+
+    /**
+     *
+     * @param node
+     * @return the new root of the tree
+     */
+    RBNode<T>* repair(RBNode<T>* node);
+    void rotateLeft(TreeNode<T>* node);
+    void rotateRight(TreeNode<T>* node);
+    void repairCase4Step2(RBNode<T>* node);
 };
 
 

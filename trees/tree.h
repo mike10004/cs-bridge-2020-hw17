@@ -81,6 +81,7 @@ public:
 protected:
     TreeNode<T>* root;
     virtual bool checkOrder(TreeNode<T>* node) const;
+    virtual bool checkRelationships(TreeNode<T>* node) const;
 };
 
 template <class T>
@@ -176,7 +177,25 @@ bool Tree<T>::checkOrder(TreeNode<T> *node) const {
 
 template<class T>
 bool Tree<T>::check() const {
-    return checkOrder(root);
+    return checkOrder(root) && checkRelationships(root);
+}
+
+template<class T>
+bool Tree<T>::checkRelationships(TreeNode<T>* node) const {
+    if (node == nullptr) {
+        return true;
+    }
+    TreeNode<T>* parent = node->parent;
+    if (parent == nullptr) {
+        return root == node;
+    }
+    if (parent->left == parent->right) {
+        return false;
+    }
+    if (parent->left != node && parent->right != node) {
+        return false;
+    }
+    return checkRelationships(node->left) && checkRelationships(node->right);
 }
 
 template <class T>

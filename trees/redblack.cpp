@@ -191,7 +191,7 @@ void RedBlackTree<T>::insert(const T &value) {
         this->root = node;
     } else {
         RBNode<T>* inserted_node = insert(value, (RBNode<T>*) this->root);
-        repair(inserted_node);
+        this->root = repair(inserted_node);
     }
 }
 
@@ -220,28 +220,104 @@ RBNode<T>* RedBlackTree<T>::insert(const T& value, RBNode<T>* point) {
 }
 
 template<class T>
-void RedBlackTree<T>::repair(RBNode<T> *node) {
+RBNode<T>* RedBlackTree<T>::repair(RBNode<T> *node) {
+    assert(node != nullptr);
     RBNode<T>* parent = node->GetParent();
     if (parent == nullptr) {
         // case 1: inserted root
         node->SetColor(BLACK);
+        return node;
     } else {
         // case 2: if parent of inserted node is black, then do nothing; otherwise...
-        if (parent->isRed()) {
+        if (parent->isBlack()) {
+            return (RBNode<T>*) this->root;
+        } else {
             RBNode<T>* parent_sibling = parent->GetSibling();
             if (parent_sibling != nullptr && parent_sibling->isRed()) {
                 // case 3
                 parent->SetColor(BLACK);
                 parent_sibling->SetColor(BLACK);
-                repair(parent->GetParent()); // we know it's non-null because parent_sibling is non-null
+                return repair(parent->GetParent()); // we know it's non-null because parent_sibling is non-null
             } else {
                 // case 4
-
+                TreeNode<T>* p = node->parent;
+                TreeNode<T>* g = p == nullptr ? nullptr : p->parent;
+                if (node == p->right && p == g->left) {
+                    rotateLeft(p);
+                    repairCase4Step2((RBNode<T>*) (node->left));
+                } else if (node == p->left && p == g->right) {
+                    rotateRight(p);
+                    repairCase4Step2((RBNode<T>*) (node->right));
+                }
+                TreeNode<T>* new_root = node;
+                while (new_root->parent != nullptr) {
+                    new_root = new_root->parent;
+                }
+                return (RBNode<T>*) new_root;
             }
         }
     }
+}
 
+template <class T>
+void RedBlackTree<T>::rotateLeft(TreeNode<T>* n) {
+    TreeNode<T>* nnew = n->right;
+    TreeNode<T>* p = n->parent;
+    assert(nnew != nullptr);
 
+    n->right = nnew->left;
+    nnew->left = n;
+    n->parent = nnew;
+
+    if (n->right != nullptr) {
+        n->right->parent = n;
+    }
+
+    if (p != nullptr) {
+        if (n == p->left) {
+            p->left = nnew;
+        } else if (n == p->right) {
+            p->right = nnew;
+        }
+    }
+    nnew->parent = p;
+}
+
+template <class T>
+void RedBlackTree<T>::rotateRight(TreeNode<T>* n) {
+    TreeNode<T>* nnew = n->left;
+    TreeNode<T>* p = n->parent;
+    assert(nnew != nullptr);
+
+    n->left = nnew->right;
+    nnew->right = n;
+    n->parent = nnew;
+
+    if (n->left != nullptr) {
+        n->left->parent = n;
+    }
+
+    if (p != nullptr) {
+        if (n == p->left) {
+            p->left = nnew;
+        } else if (n == p->right) {
+            p->right = nnew;
+        }
+    }
+    nnew->parent = p;
+}
+
+template <class T>
+void RedBlackTree<T>::repairCase4Step2(RBNode<T>* node) {
+    RBNode<T>* p = node->GetParent();
+    RBNode<T>* g = p == nullptr ? nullptr : p->GetParent();
+    if (node == p->left) {
+        rotateRight(g);
+    } else {
+        rotateLeft(g);
+    }
+    p->SetColor(BLACK);
+    g->SetColor(RED);
 }
 
 

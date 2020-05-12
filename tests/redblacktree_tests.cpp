@@ -10,10 +10,16 @@ TEST_CASE("RedBlackTree basics") {
     RedBlackTree<char> tree;
     REQUIRE(0 == tree.getSize());
     tree.insert('a');
+    tree.printLevelOrder(std::cout);
+    std::cout << "========================================================" << std::endl;
     REQUIRE(1 == tree.getSize());
     tree.insert('m');
+    tree.printLevelOrder(std::cout);
+    std::cout << "========================================================" << std::endl;
     REQUIRE(2 == tree.getSize());
     tree.insert('d');
+    tree.printLevelOrder(std::cout);
+    std::cout << "========================================================" << std::endl;
     REQUIRE(3 == tree.getSize());
     bool found = tree.isInTree('m');
     REQUIRE(found);
