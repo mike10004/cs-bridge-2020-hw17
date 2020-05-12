@@ -60,6 +60,27 @@ public:
     }
 };
 
+class Listener {
+public:
+    Listener() = default;
+    virtual ~Listener() = default;
+    virtual void Message(const std::string& message) = 0;
+};
+
+class InactiveListener : public Listener {
+    void Message(const std::string& message) override {}
+};
+
+class PrintingListener : public Listener {
+public:
+    PrintingListener(std::ostream& out) : out(out) {}
+    void Message(const std::string& message) override {
+        out << message << std::endl;
+    }
+private:
+    std::ostream& out;
+};
+
 template <class T>
 class Tree {
 public:
@@ -69,7 +90,11 @@ public:
     virtual int getSize() const = 0;
     virtual void insert(const T&) = 0;
     virtual bool isInTree(const T& toFind) const = 0;
-    virtual bool check() const;
+    virtual bool check() const {
+        InactiveListener il;
+        return check(il);
+    }
+    virtual bool check(Listener& listener) const;
     virtual void clear() = 0;
     virtual void singleCCR(TreeNode<T>*& point);
     virtual void doubleCR(TreeNode<T>*& point);
@@ -80,8 +105,8 @@ public:
     virtual void printLevelOrder(ostream& out)const;
 protected:
     TreeNode<T>* root;
-    virtual bool checkOrder(TreeNode<T>* node) const;
-    virtual bool checkRelationships(TreeNode<T>* node) const;
+    virtual bool checkOrder(TreeNode<T>* node, Listener& listener) const;
+    virtual bool checkRelationships(TreeNode<T>* node, Listener& listener) const;
 };
 
 template <class T>
@@ -152,23 +177,25 @@ void Tree<T>::singleCCR(TreeNode<T>*& point){
 }
 
 template<class T>
-bool Tree<T>::checkOrder(TreeNode<T> *node) const {
+bool Tree<T>::checkOrder(TreeNode<T> *node, Listener& listener) const {
     if (node == nullptr) {
         return true;
     }
     if (node->left != nullptr) {
         if (node->data < node->left->data) {
+            listener.Message("node's left child has key lesser than node");
             return false;
         }
-        if (!checkOrder(node->left)) {
+        if (!checkOrder(node->left, listener)) {
             return false;
         }
     }
     if (node->right != nullptr) {
         if (node->right->data < node->data) {
+            listener.Message("node's right child has key greater than node");
             return false;
         }
-        if (!checkOrder(node->right)) {
+        if (!checkOrder(node->right, listener)) {
             return false;
         }
     }
@@ -176,26 +203,32 @@ bool Tree<T>::checkOrder(TreeNode<T> *node) const {
 }
 
 template<class T>
-bool Tree<T>::check() const {
-    return checkOrder(root) && checkRelationships(root);
+bool Tree<T>::check(Listener& listener) const {
+    return checkOrder(root, listener) && checkRelationships(root, listener);
 }
 
 template<class T>
-bool Tree<T>::checkRelationships(TreeNode<T>* node) const {
+bool Tree<T>::checkRelationships(TreeNode<T>* node, Listener& listener) const {
     if (node == nullptr) {
         return true;
     }
     TreeNode<T>* parent = node->parent;
     if (parent == nullptr) {
-        return root == node;
+        if (root != node) {
+            listener.Message("node has no parent but is not root");
+            return false;
+        }
+        return true;
     }
     if (parent->left == parent->right) {
+        listener.Message("duplicate children");
         return false;
     }
     if (parent->left != node && parent->right != node) {
+        listener.Message("node is not among node's parent's children");
         return false;
     }
-    return checkRelationships(node->left) && checkRelationships(node->right);
+    return checkRelationships(node->left, listener) && checkRelationships(node->right, listener);
 }
 
 template <class T>

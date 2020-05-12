@@ -10,6 +10,7 @@ const int VALUE_MAX = 10000;
 void TestTree(Tree<int>& tree) {
     int n = 1000;
     int t = 1;
+    PrintingListener listener(std::cerr);
     for (int j = 0; j < t; j++) {
         tree.clear();
         REQUIRE(tree.isEmpty());
@@ -19,7 +20,7 @@ void TestTree(Tree<int>& tree) {
             tree.insert(val);
             present[val] = true;
             REQUIRE(!tree.isEmpty());
-            REQUIRE(tree.check());
+            REQUIRE(tree.check(listener));
         }
         for (int value = 0; value < VALUE_MAX; value++) {
             REQUIRE(present[value] == tree.isInTree(value));

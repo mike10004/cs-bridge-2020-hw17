@@ -51,12 +51,12 @@ public:
     bool isEmpty() const override;
     int getSize() const override;
     void clear() override;
-    bool check() const override;
+    bool check(Listener& listener) const override;
     bool isInTree(const T& element) const override;
     void insert(const T& value) override;
 private:
     void clear(TreeNode<T>*& node);
-    bool check(RBNode<T>* node) const;
+    bool check(RBNode<T>* node, Listener& listener) const;
     void GetDescendants(RBNode<T>* node, std::vector<RBNode<T>*>& nodes) const;
     /**
      * Inserts a value into the tree. Returns the new or existing node containing the given value.

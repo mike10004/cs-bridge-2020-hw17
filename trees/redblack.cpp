@@ -102,23 +102,25 @@ int RedBlackTree<T>::getSize() const {
 }
 
 template <class T>
-bool RedBlackTree<T>::check() const {
-    if (!Tree<T>::check()) {
+bool RedBlackTree<T>::check(Listener& listener) const {
+    if (!Tree<T>::check(listener)) {
+        listener.Message("failed basic tree check");
         return false;
     }
     RBNode<T>* root = (RBNode<T>*) (this->root);
-    return check(root);
+    return check(root, listener);
 }
 
 
 template <class T>
-bool RedBlackTree<T>::check(RBNode<T>* node) const {
+bool RedBlackTree<T>::check(RBNode<T>* node, Listener& listener) const {
     if (node == nullptr) {
         return true;
     }
     // rule 1 is stipulated by data structure
     // rule 2: root must be black
     if (node->parent == nullptr && !node->isBlack()) {
+        listener.Message("root is not black");
         return false;
     }
     RBNode<T>* left = node->GetLeft();
@@ -126,38 +128,43 @@ bool RedBlackTree<T>::check(RBNode<T>* node) const {
     // rule 3: if a node is red, its children must be black
     if (node->isRed()) {
         if (left != nullptr && left->isRed()) {
+            listener.Message("red node's left child is red");
             return false;
         }
         if (right != nullptr && right->isRed()) {
+            listener.Message("red node's right child is red");
             return false;
         }
     }
     // rule 4: every path from a node to null must traverse same number of black nodes
-    using namespace std;
-    vector<RBNode<T>*> descendants;
-    GetDescendants(node, descendants);
-    vector<vector<RBNode<T>*>> paths_with_nulls;
-    for (RBNode<T>* d : descendants) {
-        if (d->left == nullptr || d->right == nullptr) {
-            vector<RBNode<T>*> path_from_root = d->GetPathFrom(node);
-            path_from_root.push_back(node);
-            paths_with_nulls.push_back(path_from_root);
-        }
-    }
-    set<size_t> black_node_counts;
-    for (const vector<RBNode<T>*> path : paths_with_nulls) {
-        size_t num_black_nodes = 0;
-        for (RBNode<T>* n : path) {
-            if (n->isBlack()) {
-                num_black_nodes++;
+    if (node == this->root) {
+        using namespace std;
+        vector<RBNode<T> *> descendants;
+        GetDescendants(node, descendants);
+        vector<vector<RBNode<T> *>> paths_with_nulls;
+        for (RBNode<T> *d : descendants) {
+            if (d->left == nullptr || d->right == nullptr) {
+                vector<RBNode<T> *> path_from_root = d->GetPathFrom(node);
+                path_from_root.push_back(node);
+                paths_with_nulls.push_back(path_from_root);
             }
         }
-        black_node_counts.insert(num_black_nodes);
+        set<size_t> black_node_counts;
+        for (const vector<RBNode<T> *> path : paths_with_nulls) {
+            size_t num_black_nodes = 0;
+            for (RBNode<T> *n : path) {
+                if (n->isBlack()) {
+                    num_black_nodes++;
+                }
+            }
+            black_node_counts.insert(num_black_nodes);
+        }
+        if (black_node_counts.size() > 1) {
+            listener.Message("multiple counts of black nodes in paths to nulls");
+            return false;
+        }
     }
-    if (black_node_counts.size() > 1) {
-        return false;
-    }
-    return check(left) && check(right);
+    return check(left, listener) && check(right, listener);
 }
 
 template<class T>
